@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VoteWise - Empower Democracy</title>
+<style>
+  /* Basic Reset & Body Styling */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #e4e4e7;
+    background: radial-gradient(ellipse at top, #1e1b4b 0%, #0f0f23 50%, #000000 100%);
+  }
+
+   /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.9) 0%, rgba(15, 15, 35, 0.95) 100%);
+            border-bottom: 1px solid rgba(120, 119, 198, 0.3);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .logo::before {
+            content: "⬣";
+            margin-right: 12px;
+            font-size: 2rem;
+            color: #7c71c6;
+        }
+
+        .nav-center {
+            display: flex;
+            list-style: none;
+            gap: 3rem;
+        }
+
+        .nav-center a {
+            color: #a1a1aa;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            position: relative;
+            border: 1px solid transparent;
+        }
+
+        .nav-center a:hover, .nav-center a.active {
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .google-login-btn {
+        width: 100%;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #4285F4;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.3s ease;
+    }
+
+    .google-login-btn:hover {
+        background: #357ae8;
+    }
+
+    /* Make sure modal overlay centers content */
+    .modal-overlay {
+        display: none; /* default, shown via JS */
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex; /* center content */
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        padding: 20px; /* optional for small screens */
+    }
+
+    /* Optional: make modal content responsive and centered */
+    .modal-content {
+        background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 15, 35, 0.98));
+        border: 1px solid rgba(124, 113, 198, 0.3);
+        border-radius: 16px;
+        padding: 3rem;
+        max-width: 400px;
+        width: 100%;
+        backdrop-filter: blur(20px);
+        position: relative;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+        .login-btn {
+            background: linear-gradient(135deg, #7c71c6, #9333ea);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 113, 198, 0.4);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid rgba(124, 113, 198, 0.5);
+            color: #7c71c6;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(124, 113, 198, 0.1);
+            border-color: #7c71c6;
+        }
+
+        /* Login Modal */
+        /* .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 15, 35, 0.98));
+            border: 1px solid rgba(124, 113, 198, 0.3);
+            border-radius: 16px;
+            padding: 3rem;
+            width: 90%;
+            max-width: 400px;
+            backdrop-filter: blur(20px);
+            position: relative; 
+        }*/
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: #a1a1aa;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #00d4ff;
+        }
+
+        .modal h2 {
+            color: #00d4ff;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #e4e4e7;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(30, 27, 75, 0.5);
+            border: 1px solid rgba(124, 113, 198, 0.3);
+            border-radius: 8px;
+            color: #e4e4e7;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .form-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #7c71c6, #9333ea);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(124, 113, 198, 0.4);
+        }
+
+  /* Header
+  .header {
+    padding: 1rem 2rem;
+    /* Removed flexbox styles to avoid conflict with inner nav flexbox */
+    /* display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.9), rgba(15, 15, 35, 0.95));
+    border-bottom: 1px solid rgba(120, 119, 198, 0.3);
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    color: #00d4ff;
+    font-weight: 700;
+  }
+  .header nav a {
+    color: #a1a1aa;
+    margin-left: 2rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  .header nav a:hover {
+    color: #00d4ff;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  } */
+
+  /* Hero Section */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 3rem 2rem;
+    flex-wrap: wrap;
+  }
+  .hero-text {
+    max-width: 50%;
+  }
+  .hero-text h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #00d4ff;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  }
+  .hero-text p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  .btn-get-started {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #7c71c6, #9333ea);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .btn-get-started:hover {
+    box-shadow: 0 0 20px rgba(124, 113, 198, 0.5);
+    transform: translateY(-2px);
+  }
+  /* Illustration */
+  .hero-image {
+    max-width: 40%;
+    min-width: 250px;
+  }
+  .hero-image img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  }
+
+  /* Info Blocks */
+  .info-blocks {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin: 3rem 2rem;
+  }
+  .info-box {
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.6), rgba(15, 15, 35, 0.8));
+    padding: 2rem;
+    border-radius: 16px;
+    width: 300px;
+    margin: 1rem;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+  }
+  .info-box:hover {
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+    transform: translateY(-5px);
+  }
+  .info-box h3 {
+    color: #00d4ff;
+    margin-bottom: 1rem;
+  }
+  .info-box p {
+    color: #a1a1aa;
+  }
+
+  /* Testimonials */
+  .testimonials {
+    padding: 3rem 2rem;
+    background: rgba(15, 15, 35, 0.8);
+  }
+  .testimonials h2 {
+    font-size: 2rem;
+    color: #00d4ff;
+    margin-bottom: 2rem;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  }
+  .testimonial-cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  .testimonial {
+    background: linear-gradient(135deg, rgba(124, 113, 198, 0.2), rgba(147, 51, 234, 0.2));
+    padding: 2rem;
+    border-radius: 16px;
+    max-width: 350px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+  }
+  .testimonial:hover {
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+    transform: translateY(-3px);
+  }
+  .testimonial p {
+    font-style: italic;
+    color: #a1a1aa;
+  }
+  .testimonial h4 {
+    margin-top: 1rem;
+    color: #00d4ff;
+    font-weight: 600;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.8), rgba(15, 15, 35, 0.9));
+    border-top: 1px solid rgba(124, 113, 198, 0.3);
+    color: #e4e4e7;
+  }
+  .footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+  .footer-section {
+    flex: 1 1 250px;
+    margin: 1rem;
+  }
+  .footer h4 {
+    margin-bottom: 1rem;
+    color: #00d4ff;
+  }
+  .footer p, .footer a {
+    color: #a1a1aa;
+    text-decoration: none;
+    line-height: 1.6;
+  }
+  .footer a:hover {
+    color: #00d4ff;
+  }
+  .social-icons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  /* Responsive adjustments */
+  @media(max-width: 768px) {
+    .hero {
+      flex-direction: column;
+      align-items: center;
+    }
+    .hero-text, .hero-image {
+      max-width: 90%;
+    }
+    .info-blocks {
+      flex-direction: column;
+      align-items: center;
+    }
+    .footer-container {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  /* Navbar styles from course.html */
+  .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+  }
+
+  .logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #00d4ff;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  }
+
+  .logo::before {
+      content: "⬣";
+      margin-right: 12px;
+      font-size: 2rem;
+      color: #7c71c6;
+  }
+
+  .nav-center {
+      display: flex;
+      list-style: none;
+      gap: 3rem;
+  }
+
+  .nav-center a {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      position: relative;
+      border: 1px solid transparent;
+  }
+
+  .nav-center a:hover, .nav-center a.active {
+      color: #00d4ff;
+      background: rgba(0, 212, 255, 0.1);
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+  }
+
+  .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+  }
+
+  .google-login-btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #4285F4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+  }
+
+  .google-login-btn:hover {
+      background: #357ae8;
+  }
+
+  .login-btn {
+      background: linear-gradient(135deg, #7c71c6, #9333ea);
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+  }
+
+  .login-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+  }
+
+  .login-btn:hover::before {
+      left: 100%;
+  }
+
+  .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 113, 198, 0.4);
+  }
+
+  .theme-toggle {
+      background: transparent;
+      border: 1px solid rgba(124, 113, 198, 0.5);
+      color: #7c71c6;
+      padding: 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+  }
+
+  .theme-toggle:hover {
+      background: rgba(124, 113, 198, 0.1);
+      border-color: #7c71c6;
+  }
+</style>
+</head>
+<body>
+
+<div class="container sci-fi-bg">
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">VoteWise</div>
+            <ul class="nav-center">
+                <li><a href="home.html" class="active">Home</a></li>
+                <li><a href="course.html">Voter ID Courses</a></li>
+                <li><a href="registration.html">Registration</a></li>
+                <li><a href="maintenance.html">Progress Tracker</a></li>
+                <li><a href="maintenance.html">Resources</a></li>
+            </ul>
+            <div class="nav-right">
+                <button class="theme-toggle" onclick="toggleTheme()">◐</button>
+                <button class="login-btn" onclick="showLogin()">Login</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="hideLogin()">×</button>
+        <h2>Login to VoteWise</h2>
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="form-submit">Login</button>
+        </form>
+        <button class="google-login-btn" id="googleSignInBtn">Login with Google</button>
+        <p style="text-align: center; margin-top: 1rem; color: #a1a1aa;">
+            Don't have an account? <a href="#" style="color: #00d4ff;">Sign up</a>
+        </p>
+    </div>
+    </div>
+
+<!-- Hero section with illustration -->
+<section class="hero" id="home">
+  <div class="hero-text">
+    <h2>Empower Democracy Through Voter Registration</h2>
+    <p>Join us in making a difference by registering to vote and learning about the election process.</p>
+    <button class="btn-get-started" onclick="alert('Navigate to Courses!')">Get Started</button>
+  </div>
+  <div class="hero-image">
+    <!-- Replace with your preferred illustration/image -->
+    <img src="vote.png" alt="Voting Illustration"/>
+  </div>
+</section>
+
+<!-- Info blocks -->
+<div class="info-blocks">
+  <div class="info-box">
+    <h3>Voter ID Courses</h3>
+    <p>Understand the importance and procedures of obtaining a voter ID.</p>
+  </div>
+  <div class="info-box">
+    <h3>Election Process</h3>
+    <p>Learn about how elections work and the roles involved.</p>
+  </div>
+  <div class="info-box">
+    <h3>Progress Tracker</h3>
+    <p>Track your progress in understanding the democratic process.</p>
+  </div>
+</div>
+
+<!-- Testimonials -->
+<section class="testimonials" id="testimonials">
+  <h2>Testimonials</h2>
+  <div class="testimonial-cards">
+    <div class="testimonial">
+      <p>"Empower Democracy has greatly enhanced my understanding of voting!"</p>
+
+    </div>
+    <div class="testimonial">
+      <p>"I feel much more confident about registering to vote thanks to their courses."</p>
+    </div>
+    <div class="testimonial">
+      <p>"A fantastic resource for anyone looking to get involved in democracy."</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-section">
+      <h4>About VoteWise</h4>
+      <p>VoteWise is dedicated to educating voters about their rights and the importance of civic participation.</p>
+    </div>
+    <div class="footer-section">
+      <h4>Resources</h4>
+      <p><a href="#faq">FAQ</a></p>
+      <p><a href="#support">Support</a></p>
+      <p><a href="#contact">Contact Us</a></p>
+    </div>
+    <div class="footer-section">
+      <h4>Follow Us</h4>
+      <div class="social-icons">
+        <span title="Facebook">🌐</span>
+        <span title="Twitter">🐦</span>
+        <span title="LinkedIn">💼</span>
+      </div>
+    </div>
+  </div>
+  <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #71717a;">
+    &copy; 2024 VoteWise. All rights reserved.
+  </div>
+</footer>
+<script>
+    // Theme toggle
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+        if(document.body.classList.contains('dark-theme')){
+            document.body.style.background = "radial-gradient(ellipse at top, #0f0f23 0%, #1e1b4b 50%, #1e1b4b 100%)";
+            // You can add more dark theme styles as needed
+        } else {
+            document.body.style.background = "radial-gradient(ellipse at top, #1e1b4b 0%, #0f0f23 50%, #000000 100%)";
+        }
+    }
+
+    // Show login modal
+    function showLogin() {
+        document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    // Hide login modal
+    function hideLogin() {
+        document.getElementById('loginModal').style.display = 'none';
+    }
+
+    // Handle login form submission
+    function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        alert(`Logged in as: ${email}`);
+        hideLogin();
+    }
+
+    // Google OAuth client ID (replace with your actual client ID)
+    const googleClientId = 'YOUR_GOOGLE_CLIENT_ID';
+
+    // Initialize Google Sign-In button
+    window.onload = function() {
+        google.accounts.id.initialize({
+            client_id: googleClientId,
+            callback: handleGoogleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+            document.getElementById('googleSignInBtn'),
+            { theme: 'outline', size: 'large', width: '100%' }
+        );
+    };
+
+    // Handle Google credential response
+    function handleGoogleCredentialResponse(response) {
+        console.log('Encoded JWT ID token: ' + response.credential);
+        alert('Google login successful!');
+        hideLogin();
+        // Here you can decode the token and handle user info as needed
+    }
+
+    // Handle login form submission
+    function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        alert(`Logged in as: ${email}`);
+        hideLogin();
+    };
+</script>
+</body>
+</html>
